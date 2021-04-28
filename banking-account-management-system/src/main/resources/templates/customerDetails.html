@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Customer Details</title>
+<link
+	href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900"
+	rel="stylesheet">
+<link th:href="@{style.css}" rel="stylesheet" />
+</head>
+<body>
+
+ <form action="#" th:object="${selectedClient}" method="post">
+                      
+	<div class="content">
+	<div class="header">
+		<h1>Client details</h1>
+	</div>
+	<div class="inputFields">
+		<div class="textfields">
+			<label>Client ID : </label>
+			<label th:text="${selectedClient.clientId}">Client ID</label><br>
+			<label>First Name : </label>
+			<label th:text="${selectedClient.name}">Client name</label><br>
+			<label>Last Name : </label>
+			<label th:text="${selectedClient.surname}">Client surname</label><br>
+			<label>Date Of Birth : </label>
+			<label th:text="${selectedClient.date}">Client dob</label><br>
+			<label>Gender : </label>
+			<label th:text="${selectedClient.clientSubTypeCode.clientTypeDescription}">Client gender</label><br>
+		</div>
+	</div>
+	
+	<div class="header">
+		<h1>Client accounts </h1>
+	</div>
+
+</div>
+</form>
+	
+</body>
+</html>

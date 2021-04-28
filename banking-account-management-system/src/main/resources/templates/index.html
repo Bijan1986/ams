@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Search Customer</title>
+<link
+	href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900"
+	rel="stylesheet">
+<link th:href="@{style.css}" rel="stylesheet" />
+</head>
+<body>
+<form action="#" th:action="@{/customer}" th:object="${client}" method="get">
+	<div class="content">
+	<div class="header">
+		<h1>Search customer</h1>
+	</div>
+	<div class="inputFields">
+		<div class="textfields">
+			<label>Client ID</label><br> 
+			<input type="text" th:field="*{clientId}" placeholder="enter client ID" class="searchCustomer"><br><br>
+			<!--  <label>First Name</label><br> 
+			<input type="text" placeholder="enter first name" class="nameField"><br> 
+			<label>Last Name</label><br>
+			<input type="text" placeholder="enter last name" class="nameField"><br><br>-->
+			<input type="submit" value="search customer" class="searchCustomer">
+		</div>
+	</div>
+
+</div>
+</form>
+	
+</body>
+</html>
