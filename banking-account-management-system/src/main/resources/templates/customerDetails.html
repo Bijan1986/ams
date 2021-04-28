@@ -10,33 +10,77 @@
 </head>
 <body>
 
- <form action="#" th:object="${selectedClient}" method="post">
-                      
-	<div class="content">
-	<div class="header">
-		<h1>Client details</h1>
-	</div>
-	<div class="inputFields">
-		<div class="textfields">
-			<label>Client ID : </label>
-			<label th:text="${selectedClient.clientId}">Client ID</label><br>
-			<label>First Name : </label>
-			<label th:text="${selectedClient.name}">Client name</label><br>
-			<label>Last Name : </label>
-			<label th:text="${selectedClient.surname}">Client surname</label><br>
-			<label>Date Of Birth : </label>
-			<label th:text="${selectedClient.date}">Client dob</label><br>
-			<label>Gender : </label>
-			<label th:text="${selectedClient.clientSubTypeCode.clientTypeDescription}">Client gender</label><br>
-		</div>
-	</div>
-	
-	<div class="header">
-		<h1>Client accounts </h1>
-	</div>
+	<form action="#" th:object="${selectedClient}" method="post">
 
-</div>
-</form>
-	
+		<div class="content">
+			<div class="header">
+				<h1>Client details</h1>
+			</div>
+			<div class="inputFields">
+				<div class="textfields">
+					<label>Client ID : </label> <label
+						th:text="${selectedClient.clientId}">Client ID</label><br> <label>First
+						Name : </label> <label th:text="${selectedClient.name}">Client
+						name</label><br> <label>Last Name : </label> <label
+						th:text="${selectedClient.surname}">Client surname</label><br>
+					<label>Date Of Birth : </label> <label
+						th:text="${selectedClient.date}">Client dob</label><br> <label>Gender
+						: </label> <label
+						th:text="${selectedClient.clientSubTypeCode.clientTypeDescription}">Client
+						gender</label><br>
+				</div>
+			</div>
+
+			<div class="header">
+				<h1>Transactional Account Balances</h1>
+				<div class="tableStyle" th:if="${ not#lists.isEmpty(accounts)}">
+					<table class="styled-table">
+						<thead>
+							<tr>
+								<th>Account Number</th>
+								<th>Account Type</th>
+								<th>Balance</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="account : ${accounts}">
+								<td th:text="${account.clientAccountNumber}">Account Number</td>
+								<td  th:text="${account.accountTypeCode.description}">Account Type</td>
+								<td th:text="${account.displayBalance}">balance</td>
+							</tr>
+							
+						</tbody>
+					</table>
+				</div>
+				
+				<h1>Currency Account Balances</h1>
+				<div class="tableStyle" th:if="${ not#lists.isEmpty(currencyAccounts)}">
+					<table class="styled-table">
+						<thead>
+							<tr>
+								<th>Account Number</th>
+								<th>Currency</th>
+								<th>Currency Balance</th>
+								<th>Currency Conversion Rate</th>
+								<th>ZAR Amount</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="currAccount : ${currencyAccounts}">
+								<td th:text="${currAccount.accountNumber}">Account Number</td>
+								<td  th:text="${currAccount.currency}">currency Code</td>
+								<td th:text="${currAccount.currencyBalance}">balance</td>
+								<td  th:text="${currAccount.currencyConvRate}">currency Conversion rate</td>
+								<td th:text="${currAccount.zarAmount}">ZAR amount</td>
+							</tr>
+							
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div>
+	</form>
+
 </body>
 </html>

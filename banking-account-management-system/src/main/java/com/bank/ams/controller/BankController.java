@@ -102,10 +102,20 @@ public class BankController {
 	public List<Currency> getAllCurrencies() {
 		return currencyService.getAllCurrency();
 	}
+	
+	@GetMapping("/currencies/{id}")
+	public Currency getCurrencyById(@PathVariable("id") String id) {
+		return currencyService.getCurrencyById(id);
+	}
 
 	@GetMapping("/currenciesConversionRates")
 	public List<CurrencyConversionrate> getAllCurrencyConversions() {
 		return currencyConversionRateService.getAllCurrencyConversionRate();
+	}
+	
+	@GetMapping("/currenciesConversionRates/{id}")
+	public CurrencyConversionrate getCurrencyConversionsById(@PathVariable("id")String id) {
+		return currencyConversionRateService.getCurrecyRateById(id);
 	}
 
 	@GetMapping("/clientAccounts")
