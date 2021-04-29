@@ -6,11 +6,11 @@
 <link
 	href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900"
 	rel="stylesheet">
-<link th:href="@{style.css}" rel="stylesheet" />
+<link th:href="@{/css/style.css}" href="/css/style.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
 
-	<form action="#" th:object="${selectedClient}" method="post">
+	<form action="#" th:object="${selectedClient}" method="get">
 
 		<div class="content">
 			<div class="header">
@@ -18,12 +18,11 @@
 			</div>
 			<div class="inputFields">
 				<div class="textfields">
-					<label>Client ID : </label> <label
-						th:text="${selectedClient.clientId}">Client ID</label><br> <label>First
-						Name : </label> <label th:text="${selectedClient.name}">Client
-						name</label><br> <label>Last Name : </label> <label
-						th:text="${selectedClient.surname}">Client surname</label><br>
-					<label>Date Of Birth : </label> <label
+					<label>Client ID : </label> <label th:text="${selectedClient.id}">Client
+						ID</label><br> <label>First Name : </label> <label
+						th:text="${selectedClient.name}">Client name</label><br> <label>Last
+						Name : </label> <label th:text="${selectedClient.surname}">Client
+						surname</label><br> <label>Date Of Birth : </label> <label
 						th:text="${selectedClient.date}">Client dob</label><br> <label>Gender
 						: </label> <label
 						th:text="${selectedClient.clientSubTypeCode.clientTypeDescription}">Client
@@ -40,21 +39,26 @@
 								<th>Account Number</th>
 								<th>Account Type</th>
 								<th>Balance</th>
+								<th>Action</th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr th:each="account : ${accounts}">
 								<td th:text="${account.clientAccountNumber}">Account Number</td>
-								<td  th:text="${account.accountTypeCode.description}">Account Type</td>
+								<td th:text="${account.accountTypeCode.description}">Account
+									Type</td>
 								<td th:text="${account.displayBalance}">balance</td>
+								<td><a th:href="@{'/clients/withdraw/'+${clientId}}+'/'+${account.clientAccountNumber}">Withdraw Cash</a></td>
+
 							</tr>
-							
+
 						</tbody>
 					</table>
 				</div>
-				
+
 				<h1>Currency Account Balances</h1>
-				<div class="tableStyle" th:if="${ not#lists.isEmpty(currencyAccounts)}">
+				<div class="tableStyle"
+					th:if="${ not#lists.isEmpty(currencyAccounts)}">
 					<table class="styled-table">
 						<thead>
 							<tr>
@@ -68,18 +72,34 @@
 						<tbody>
 							<tr th:each="currAccount : ${currencyAccounts}">
 								<td th:text="${currAccount.accountNumber}">Account Number</td>
-								<td  th:text="${currAccount.currency}">currency Code</td>
+								<td th:text="${currAccount.currency}">currency Code</td>
 								<td th:text="${currAccount.currencyBalance}">balance</td>
-								<td  th:text="${currAccount.currencyConvRate}">currency Conversion rate</td>
+								<td th:text="${currAccount.currencyConvRate}">currency
+									Conversion rate</td>
 								<td th:text="${currAccount.zarAmount}">ZAR amount</td>
 							</tr>
-							
+
 						</tbody>
 					</table>
 				</div>
 			</div>
+			
+			<!--  <div>
+			<h1>withdraw cash from transactional account</h1>
 
+			<label>Select ATM : </label> 
+			<select th:field="*{id}">
+				<option th:each="atm : ${allAtms}" th:value="${atm.id}"
+					th:text="${atm.atmId.name}" /> 
+			</select> <br>
+			<label>Select Transactional Account : </label> 
+			<select th:field="*{id}">
+				<option th:each="account : ${accounts}"th:value="${account.clientAccountNumber}"
+					th:text="${account.clientAccountNumber}" /> 
+			</select> <br>
+		</div>-->
 		</div>
+		
 	</form>
 
 </body>

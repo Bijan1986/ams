@@ -41,7 +41,7 @@ body {
 	margin: 25px 0;
 	font-size: 0.9em;
 	font-family: sans-serif;
-	min-width: 400px;
+	min-width: 80%;
 	box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
@@ -64,6 +64,34 @@ body {
 
 .styled-table tbody tr:last-of-type {
     border-bottom: 2px solid #009879;
+}
+
+.btnStyle{
+	width: 900px;
+	padding-bottom: 20px;
+}
+
+.withdrawCash{
+	margin: auto;
+	height: 30px;
+	width: 30%;
+	font-size: 20px;
+	display:inline-block;
+	margin-right: 300px;
+	border: 2px solid  #009879;
+	background-color: #009879;
+	color: #ffffff;
+}
+
+.backStyle{
+	margin: auto;
+	height: 30px;
+	width: 30%;
+	font-size: 20px;
+	display:inline-block;
+	border: 2px solid  #009879;
+	background-color: #009879;
+	color: #ffffff;
 }
 
 

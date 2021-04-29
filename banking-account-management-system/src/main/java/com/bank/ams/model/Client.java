@@ -9,7 +9,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,7 +21,7 @@ public class Client {
 
 	@Id
 	@Column(name = "CLIENT_ID")
-	private Integer clientId;
+	private Integer id;
 
 	@Column(name = "TITLE")
 	private String title;
@@ -41,6 +40,14 @@ public class Client {
 	private ClientSubType clientSubTypeCode;
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -49,20 +56,12 @@ public class Client {
 		if (getClass() != obj.getClass())
 			return false;
 		Client other = (Client) obj;
-		if (clientId == null) {
-			if (other.clientId != null)
+		if (id == null) {
+			if (other.id != null)
 				return false;
-		} else if (!clientId.equals(other.clientId))
+		} else if (!id.equals(other.id))
 			return false;
 		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((clientId == null) ? 0 : clientId.hashCode());
-		return result;
 	}
 
 }

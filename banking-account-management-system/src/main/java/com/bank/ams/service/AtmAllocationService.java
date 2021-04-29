@@ -17,5 +17,9 @@ public class AtmAllocationService {
 	public List<AtmAllocation> getAllAtmAllocation() {
 		return atmAllocationRepository.findAll();
 	}
+	
+	public void saveAtmAllocation(AtmAllocation atmAllocation) {
+		atmAllocationRepository.save(atmAllocation);
+	}
 
 }

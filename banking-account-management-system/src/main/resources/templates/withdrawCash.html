@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Customer Details</title>
+<link
+	href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900"
+	rel="stylesheet">
+<link th:href="@{/css/style.css}" href="/css/style.css" rel="stylesheet"
+	type="text/css" />
+</head>
+<body>
+
+	<form action="#" th:action="@{/withdraw/cash}" th:object="${withDrawalDetails}" method="post">
+
+		<div class="content">
+			<div class="withdrawalDetails">
+				<input type="hidden" th:value="${withDrawalDetails.clientAccountNumber}" th:field="*{clientAccountNumber}">
+				<input type="hidden" th:value="${withDrawalDetails.clientId}" th:field="*{clientId}">
+				<input type="hidden" th:value="${withDrawalDetails.availableBalance}" th:field="*{availableBalance}">
+				<input type="hidden" th:value="${withDrawalDetails.accountType}" th:field="*{accountType}">
+				<h1>Draw From Account</h1>
+				<br>
+				<label>Selected Account Number : </label>
+				<label th:text="${withDrawalDetails.clientAccountNumber}" th:field="*{clientAccountNumber}">Account Number </label><br><br>
+				<label>Account Type : </label>
+				<label th:text="${withDrawalDetails.accountType}" th:field="*{accountType}">Account Type </label><br><br>
+				<label>Choose ATM </label>
+				<select th:field="*{atmAllocationId}">
+					<option value=""> select from drop down </option>
+					<option th:each="atm : ${atms}"
+                            th:value="${atm.id}"
+                            th:utext="${atm.name}"/>
+				</select><br><br>
+				<label>Required Amount :</label><br>
+				<input type="text" th:field="*{amountToWithdraw}"><br><br>
+				<input type="submit" value="Submit" class="searchCustomer">
+			</div>
+
+		</div>
+
+	</form>
+
+</body>
+</html>

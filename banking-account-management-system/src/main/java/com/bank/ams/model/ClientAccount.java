@@ -25,7 +25,7 @@ public class ClientAccount {
 
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH })
 	@JoinColumn(name = "CLIENT_ID")
-	private Client clientId;
+	private Client client;
 
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH })
 	@JoinColumn(name = "ACCOUNT_TYPE_CODE")

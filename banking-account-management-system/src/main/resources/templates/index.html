@@ -6,7 +6,8 @@
 <link
 	href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900"
 	rel="stylesheet">
-<link th:href="@{style.css}" rel="stylesheet" />
+<link th:href="@{/css/style.css}" href="/css/style.css" rel="stylesheet"
+	type="text/css" />
 </head>
 <body>
 <form action="#" th:action="@{/customer}" th:object="${client}" method="get">
@@ -17,7 +18,7 @@
 	<div class="inputFields">
 		<div class="textfields">
 			<label>Client ID</label><br> 
-			<input type="text" th:field="*{clientId}" placeholder="enter client ID" class="searchCustomer"><br><br>
+			<input type="text" th:field="*{id}" placeholder="enter client ID" class="searchCustomer"><br><br>
 			<!--  <label>First Name</label><br> 
 			<input type="text" placeholder="enter first name" class="nameField"><br> 
 			<label>Last Name</label><br>

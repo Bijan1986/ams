@@ -126,7 +126,7 @@ public class BankController {
 	@GetMapping("/clientAccounts/{id}")
 	public List<ClientAccount> getAllClientAccountsById(@PathVariable("id") Integer id) {
 		Client client = new Client();
-		client.setClientId(id);
+		client.setId(id);
 		return clientAccountService.getAllClientAccountByClientId(client);
 
 	}
@@ -155,5 +155,6 @@ public class BankController {
 	public List<AtmAllocation> getAllAtmAllocations() {
 		return atmAllocationService.getAllAtmAllocation();
 	}
+	
 
 }

@@ -38,7 +38,17 @@ private Comparator<ClientAccount> byBalance = (cl1, cl2) -> cl2.getDisplayBalanc
 
 ![currency conversion details](images/Capture3.JPG)
 
+> code snippet
 
+```java 
 
+private Comparator<CurrencyAccountDetails> byCurrBalance = (cl1, cl2) -> cl2.getZarAmount()
+			.compareTo(cl1.getZarAmount());
+			
+public String showCustomer(@ModelAttribute("client") Client client, Model model) {
+model.addAttribute("currencyAccounts", currencyAccountBalanceDetails(allAccounts));
+		return "customerDetails";
+	}
 
+```
 
