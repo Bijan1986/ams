@@ -53,8 +53,12 @@
 							</tr>
 
 						</tbody>
-					</table>
+					</table>					
 				</div>
+				
+				<div class="form-error" th:if="${#lists.isEmpty(accounts)}">
+					<label>No accounts to display</label>   						
+			   </div>
 
 				<h1>Currency Account Balances</h1>
 				<div class="tableStyle"
@@ -83,7 +87,10 @@
 					</table>
 				</div>
 			</div>
-			
+			<div class="form-error" th:if="${#lists.isEmpty(currencyAccounts)}">
+					<label>No accounts to display</label>   						
+			   </div>
+			<br>
 			<a th:href="@{/}">Home</a>
 			<!--  <div>
 			<h1>withdraw cash from transactional account</h1>

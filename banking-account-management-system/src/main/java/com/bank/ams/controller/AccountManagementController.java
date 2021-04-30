@@ -6,11 +6,16 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -69,17 +74,30 @@ public class AccountManagementController {
 	}
 
 	@GetMapping("/customer")
-	public String showCustomer(@ModelAttribute("client") Client client, Model model) {
-		Client selectedClient = clientService.getClientById(client.getId()).get();
-		model.addAttribute("selectedClient", selectedClient);
-		allAccounts = clientAccountService.getAllClientAccountByClientId(selectedClient);
-		trnscAccounts = allAccounts.stream().filter(account -> account.getAccountTypeCode().getTransactional())
-				.collect(Collectors.toList());
-		trnscAccounts.sort(byBalance);
-		model.addAttribute("accounts", trnscAccounts);
-		model.addAttribute("clientId", client.getId());
-		model.addAttribute("currencyAccounts", currencyAccountBalanceDetails(allAccounts));
-		model.addAttribute("allAtms", atmAllocationService.getAllAtmAllocation());
+	public String showCustomer(@Valid @ModelAttribute("client") Client client,BindingResult result,Errors errors,  RedirectAttributes redirectAttributes,Model model) {
+		if(result.hasErrors()) {
+			return "index";
+		}else {
+			Optional<Client> selectedClientOpt = clientService.getClientById(client.getId());
+			if(selectedClientOpt.isPresent()) {
+				Client selectedClient = selectedClientOpt.get();
+				model.addAttribute("selectedClient", selectedClient);
+				allAccounts = clientAccountService.getAllClientAccountByClientId(selectedClient);
+				trnscAccounts = allAccounts.stream().filter(account -> account.getAccountTypeCode().getTransactional())
+						.collect(Collectors.toList());
+				trnscAccounts.sort(byBalance);
+				model.addAttribute("accounts", trnscAccounts);
+				model.addAttribute("clientId", client.getId());
+				model.addAttribute("currencyAccounts", currencyAccountBalanceDetails(allAccounts));
+				model.addAttribute("allAtms", atmAllocationService.getAllAtmAllocation());
+			}else {
+				errors.rejectValue("id", "client "+client.getId()+" is unavailable");
+		        redirectAttributes.addFlashAttribute("errorMessage", "unable to find client with client id :"+client.getId());
+		        return "redirect:/";
+			}
+			
+		}
+		
 		return "customerDetails";
 	}
 

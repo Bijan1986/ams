@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ public class Client {
 
 	@Id
 	@Column(name = "CLIENT_ID")
+	@NotNull(message = "client id can not be empty")
 	private Integer id;
 
 	@Column(name = "TITLE")

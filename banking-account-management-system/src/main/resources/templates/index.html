@@ -18,11 +18,12 @@
 	<div class="inputFields">
 		<div class="textfields">
 			<label>Client ID</label><br> 
-			<input type="text" th:field="*{id}" placeholder="enter client ID" class="searchCustomer"><br><br>
-			<!--  <label>First Name</label><br> 
-			<input type="text" placeholder="enter first name" class="nameField"><br> 
-			<label>Last Name</label><br>
-			<input type="text" placeholder="enter last name" class="nameField"><br><br>-->
+			<input type="number" th:field="*{id}" placeholder="enter client ID" class="searchCustomer">
+			<div class="form-error" th:if="${#fields.hasErrors('id')}" th:errors="*{id}"></div>
+			<div th:if="${errorMessage}" class="form-error">
+   				<div th:text="${errorMessage}"></div>
+			</div>
+			<br><br>
 			<input type="submit" value="search customer" class="searchCustomer">
 		</div>
 	</div>
