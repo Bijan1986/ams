@@ -24,8 +24,11 @@ import com.bank.ams.model.Client;
 import com.bank.ams.model.ClientAccount;
 import com.bank.ams.model.CurrencyConversionrate;
 import com.bank.ams.service.AtmAllocationService;
+import com.bank.ams.service.AtmService;
 import com.bank.ams.service.ClientAccountService;
 import com.bank.ams.service.ClientService;
+import com.bank.ams.service.CurrencyConversionRateService;
+import com.bank.ams.util.AmsVars;
 import com.bank.ams.util.CurrencyAccountDetails;
 import com.bank.ams.util.WithdrawalDetails;
 
@@ -37,27 +40,27 @@ public class AccountManagementController {
 			.compareTo(cl1.getDisplayBalance());
 	private Comparator<CurrencyAccountDetails> byCurrBalance = (cl1, cl2) -> cl2.getZarAmount()
 			.compareTo(cl1.getZarAmount());
-	private static final String CURRENCY_ACCOUNT_CODE = "CFCA";
-	private static final String EMPTY_VAL = " ";
-	private static final double EMPTY_BAL = 0.00;
 	
+
 	List<ClientAccount> trnscAccounts = new ArrayList<>();
 	List<ClientAccount> allAccounts = new ArrayList<>();
 
-	// private Function<ClientAccount, CurrencyAccountDetails> currencyFunc =
-	// (t,r)-> r.set ;
-
-	@Autowired
-	private BankController bankController;
-	
 	@Autowired
 	private AtmAllocationService atmAllocationService;
-	
+
 	@Autowired
 	private ClientService clientService;
 
 	@Autowired
 	private ClientAccountService clientAccountService;
+
+	@Autowired
+	private AtmService atmService;
+	
+	@Autowired
+	private CurrencyConversionRateService currencyConversionRateService;
+
+	
 
 	@GetMapping("/")
 	public String searchCustomer(Model theModel) {
@@ -70,133 +73,110 @@ public class AccountManagementController {
 		Client selectedClient = clientService.getClientById(client.getId()).get();
 		model.addAttribute("selectedClient", selectedClient);
 		allAccounts = clientAccountService.getAllClientAccountByClientId(selectedClient);
-		trnscAccounts = allAccounts.stream()
-				.filter(account -> account.getAccountTypeCode().getTransactional()).collect(Collectors.toList());
+		trnscAccounts = allAccounts.stream().filter(account -> account.getAccountTypeCode().getTransactional())
+				.collect(Collectors.toList());
 		trnscAccounts.sort(byBalance);
 		model.addAttribute("accounts", trnscAccounts);
 		model.addAttribute("clientId", client.getId());
 		model.addAttribute("currencyAccounts", currencyAccountBalanceDetails(allAccounts));
-		model.addAttribute("allAtms", bankController.getAllAtmAllocations());
+		model.addAttribute("allAtms", atmAllocationService.getAllAtmAllocation());
 		return "customerDetails";
 	}
-	
+
 	@GetMapping("/clients/withdraw/{clientId}/{clientAccountNumber}")
-	public String getWithdraw(@PathVariable("clientId")Integer id, @PathVariable("clientAccountNumber")String clientAccountNumber,Model model) {
-		List<Atm> allAtms = bankController.getAllAtms();
+	public String getWithdraw(@PathVariable("clientId") Integer id,
+			@PathVariable("clientAccountNumber") String clientAccountNumber, Model model) {
+		List<Atm> allAtms = atmService.getAllAtms();
 		WithdrawalDetails withdrawalDetails = new WithdrawalDetails();
 		withdrawalDetails.setClientId(id);
 		withdrawalDetails.setClientAccountNumber(clientAccountNumber);
-		for(ClientAccount eachCa: trnscAccounts) {
-			if(eachCa.getClientAccountNumber().equals(clientAccountNumber)) {
+		for (ClientAccount eachCa : trnscAccounts) {
+			if (eachCa.getClientAccountNumber().equals(clientAccountNumber)) {
 				withdrawalDetails.setAccountType(eachCa.getAccountTypeCode().getDescription());
 				withdrawalDetails.setAvailableBalance(eachCa.getDisplayBalance());
 			}
 		}
-		
+
 		model.addAttribute("withDrawalDetails", withdrawalDetails);
 		model.addAttribute("atms", allAtms);
 		return "withdrawCash";
 	}
-	
+
 	@PostMapping("/withdraw/cash")
-	public String withdrawMoney(@ModelAttribute("withDrawalDetails")WithdrawalDetails wd, Model model, RedirectAttributes redirectAttrs) {
+	public String withdrawMoney(@ModelAttribute("withDrawalDetails") WithdrawalDetails wd, Model model,
+			RedirectAttributes redirectAttrs) {
 		double amountTwd = wd.getAmountToWithdraw();
 		Integer clientId = wd.getClientId();
 		String accNumb = wd.getClientAccountNumber();
 		Integer atmId = wd.getAtmAllocationId();
 		ClientAccount clientAccount = clientAccountService.getClientAccountByClientIdAndAccNumb(accNumb);
 		Double avlBalAcc = clientAccount.getDisplayBalance();
-		List<AtmAllocation> atmAllocations = bankController.getAllAtmAllocations();
-		List<AtmAllocation> selectedAtmAllocations = atmAllocations.stream().filter(t->t.getAtmId().getId()==atmId).collect(Collectors.toList());
+		List<AtmAllocation> atmAllocations = atmAllocationService.getAllAtmAllocation();
+		List<AtmAllocation> selectedAtmAllocations = atmAllocations.stream().filter(t -> t.getAtmId().getId() == atmId)
+				.collect(Collectors.toList());
 		double availableFundsinAtm = calculateAmount(selectedAtmAllocations);
-		if(availableFundsinAtm >= amountTwd) {
+		if (availableFundsinAtm >= amountTwd) {
 			withdrawcash(selectedAtmAllocations, availableFundsinAtm, amountTwd);
 			Double amntLftAcc = avlBalAcc - amountTwd;
 			clientAccount.setDisplayBalance(amntLftAcc);
 			clientAccountService.saveClientAccount(clientAccount);
 		}
-		
+
 		redirectAttrs.addAttribute("id", clientId);
 		return "redirect:/customer";
 	}
+	
+	public AtmAllocation updateAtmAllocation(AtmAllocation eachAlloc, Integer coinOrNoteLeft) {
+		AtmAllocation atmAllocation = eachAlloc;
+		atmAllocation.setCount(coinOrNoteLeft);
+		atmAllocationService.saveAtmAllocation(atmAllocation);
+		return atmAllocation;
 
-	private void withdrawcash(List<AtmAllocation> selectedAtmAllocations, double availableFundsinAtm,
+	}
+	
+	public void withdrawcash(List<AtmAllocation> selectedAtmAllocations, double availableFundsinAtm,
 			double amountTwd) {
 		double amountTowithDraw = amountTwd;
 		Map<Integer, AtmAllocation> atmTobeAllocatedMap = new HashMap<>();
 		for (AtmAllocation eachAlloc : selectedAtmAllocations) {
 			double totalPriceInAllocation = (eachAlloc.getCount()) * ((eachAlloc.getDenominationId().getValue()));
-			
+
 			Integer coinOrNotesLeft = 0;
 			if (amountTowithDraw != 0.00) {
 				Integer coinOrNoteToBeUsed = (int) ((amountTowithDraw) / (eachAlloc.getDenominationId().getValue()));
-				coinOrNotesLeft= (eachAlloc.getCount()) - coinOrNoteToBeUsed;
-				if(coinOrNotesLeft >= 0) {
+				coinOrNotesLeft = (eachAlloc.getCount()) - coinOrNoteToBeUsed;
+				if (coinOrNotesLeft >= 0) {
 					Integer remainder = (int) ((amountTowithDraw) % (eachAlloc.getDenominationId().getValue()));
 					if (remainder == 0) {
 						amountTowithDraw = 0.00;
 					} else {
 						amountTowithDraw = remainder;
 					}
-				}else {
+				} else {
 					amountTowithDraw -= totalPriceInAllocation;
 					coinOrNotesLeft = 0;
 				}
-				
+
 				atmTobeAllocatedMap.put(eachAlloc.getId(), updateAtmAllocation(eachAlloc, coinOrNotesLeft));
 			}
 
 		}
 
 	}
-
-	private AtmAllocation updateAtmAllocation(AtmAllocation eachAlloc, Integer coinOrNoteLeft) {
-		AtmAllocation atmAllocation = eachAlloc;
-		atmAllocation.setCount(coinOrNoteLeft);
-		atmAllocationService.saveAtmAllocation(atmAllocation);
-		return atmAllocation;
-		
-		
-	}
-
-	public List<CurrencyAccountDetails> currencyAccountBalanceDetails(List<ClientAccount> allAccounts) {
-		List<ClientAccount> currencyAccounts = allAccounts.stream().filter(
-				account -> account.getAccountTypeCode().getAccountTypeCode().equalsIgnoreCase(CURRENCY_ACCOUNT_CODE))
-				.collect(Collectors.toList());
-
-		List<CurrencyAccountDetails> currencyAccDetails = new ArrayList<>();
-		for (ClientAccount eachClAcnt : currencyAccounts) {
-			currencyAccDetails.add(mapToClientAcc(eachClAcnt));
-		}
-		currencyAccDetails.sort(byCurrBalance);
-		return currencyAccDetails;
-	}
 	
-	public double calculateAmount(List<AtmAllocation> atmAllocations) {
-		
-		double availableFunds = 0.00;
-		for(AtmAllocation eachAtmAlcn:atmAllocations) {
-			double total = (eachAtmAlcn.getDenominationId().getValue()) * (eachAtmAlcn.getCount());
-			availableFunds += total;
-		}
-		
-		return availableFunds;
-	}
-
 	public CurrencyAccountDetails mapToClientAcc(ClientAccount clientAccount) {
 
-		CurrencyConversionrate currencyConvRate = bankController
-				.getCurrencyConversionsById(clientAccount.getCurrencyCode().getCurrencyCode());
+		CurrencyConversionrate currencyConvRate = currencyConversionRateService.getCurrecyRateById(clientAccount.getCurrencyCode().getCurrencyCode());
 		Integer decimalPlace = currencyConvRate.getCurrencyCode().getDecimalPlace();
 
 		CurrencyAccountDetails currencyAccountDetails = new CurrencyAccountDetails();
 		currencyAccountDetails.setAccountNumber(
-				clientAccount.getClientAccountNumber() != null ? clientAccount.getClientAccountNumber() : EMPTY_VAL);
+				clientAccount.getClientAccountNumber() != null ? clientAccount.getClientAccountNumber() : AmsVars.EMPTY_VAL);
 		currencyAccountDetails.setCurrency(clientAccount.getCurrencyCode().getCurrencyCode() != null
 				? clientAccount.getCurrencyCode().getCurrencyCode()
-				: EMPTY_VAL);
+				: AmsVars.EMPTY_VAL);
 		currencyAccountDetails.setCurrencyBalance(
-				clientAccount.getDisplayBalance() != null ? clientAccount.getDisplayBalance() : EMPTY_BAL);
+				clientAccount.getDisplayBalance() != null ? clientAccount.getDisplayBalance() : AmsVars.EMPTY_BAL);
 		currencyAccountDetails.setCurrencyConvRate(currencyConvRate.getDecimal());
 
 		double zarBal = 0.00;
@@ -215,5 +195,32 @@ public class AccountManagementController {
 		return currencyAccountDetails;
 
 	}
+	
+	public List<CurrencyAccountDetails> currencyAccountBalanceDetails(List<ClientAccount> allAccounts) {
+		List<ClientAccount> currencyAccounts = allAccounts.stream().filter(
+				account -> account.getAccountTypeCode().getAccountTypeCode().equalsIgnoreCase(AmsVars.CURRENCY_ACCOUNT_CODE))
+				.collect(Collectors.toList());
+
+		List<CurrencyAccountDetails> currencyAccDetails = new ArrayList<>();
+		for (ClientAccount eachClAcnt : currencyAccounts) {
+			currencyAccDetails.add(mapToClientAcc(eachClAcnt));
+		}
+		currencyAccDetails.sort(byCurrBalance);
+		return currencyAccDetails;
+	}
+
+	public double calculateAmount(List<AtmAllocation> atmAllocations) {
+
+		double availableFunds = 0.00;
+		for (AtmAllocation eachAtmAlcn : atmAllocations) {
+			double total = (eachAtmAlcn.getDenominationId().getValue()) * (eachAtmAlcn.getCount());
+			availableFunds += total;
+		}
+
+		return availableFunds;
+	}
+
+
+	
 
 }
