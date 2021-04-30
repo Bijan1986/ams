@@ -52,3 +52,15 @@ model.addAttribute("currencyAccounts", currencyAccountBalanceDetails(allAccounts
 
 ```
 
+## 4.Reporting – Find the transactional account per client with the highest balance
+
+```SQL
+SELECT C.CLIENT_ID, C.SURNAME, CA.CLIENT_ACCOUNT_NUMBER,AT.DESCRIPTION,CA.DISPLAY_BALANCE FROM CLIENT C
+LEFT JOIN  CLIENT_ACCOUNT CA ON C.CLIENT_ID = CA.CLIENT_ID 
+LEFT JOIN ACCOUNT_TYPE AT ON CA.ACCOUNT_TYPE_CODE  = AT.ACCOUNT_TYPE_CODE
+WHERE CA.DISPLAY_BALANCE = (SELECT MAX(DISPLAY_BALANCE) FROM CLIENT_ACCOUNT WHERE CLIENT_ID   = CA.CLIENT_ID )
+```
+![currency conversion details](images/Capture5.JPG)
+
+## 5. 4.2.5	Reporting – Calculate aggregate financial position per client
+
