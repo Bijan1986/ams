@@ -1,4 +1,7 @@
-﻿# Account Management System business requirements
+﻿# Set up
+There are no extra set ups needed . if you don't have Lombok then kindly add getters and setters to the entities . 
+
+# Account Management System business requirements
 
 ## 1. Display transactional account with balances
 
