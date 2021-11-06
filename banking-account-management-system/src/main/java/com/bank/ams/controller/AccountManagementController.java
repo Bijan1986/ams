@@ -208,7 +208,7 @@ public class AccountManagementController {
 		NumberFormat numFormat = NumberFormat.getInstance();
 		numFormat.setMaximumFractionDigits(decimalPlace);
 
-		currencyAccountDetails.setZarAmount(Double.parseDouble(numFormat.format(zarBal).replaceAll(",", "")));
+		currencyAccountDetails.setZarAmount(zarBal);
 
 		return currencyAccountDetails;
 
